@@ -18,7 +18,7 @@ function drawCircle(x, y) {
 }
 
 // Function to update circle positions
-function updateCircles() {
+function update() {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -32,12 +32,17 @@ function updateCircles() {
         circle.x += circle.dx;
         circle.y += circle.dy;
 
-        // Check if circle is out of bounds
+        // Check if circle is out of bounds and mark it for deletion
         if (circle.x < -10 || circle.x > canvas.width + 10 || circle.y < -10 || circle.y > canvas.height + 10) {
-            // Remove the circle from the array
-            circles.splice(i, 1);
+            circle.markedForDeletion = true;
         }
     }
+
+    // Remove circles marked for deletion
+    circles = circles.filter(circle => !circle.markedForDeletion);
+
+    // Request the next animation frame
+    requestAnimationFrame(update);
 }
 
 // Event listener for mousemove events
@@ -54,18 +59,18 @@ canvas.addEventListener('mousemove', function(event) {
             y: mouseY,
             dx: 0, // X direction (horizontal) of the drift
             dy: 0, // Y direction (vertical) of the drift
-            driftTimer: setTimeout(() => {
-                // Set a random direction after 1 second
-                const angle = Math.random() * Math.PI * 2;
-                circle.dx = Math.cos(angle) * 2; // Adjust speed as needed
-                circle.dy = Math.sin(angle) * 2; // Adjust speed as needed
-            }, 0)
         };
+
+        // Set a random direction after a short delay
+        const angle = Math.random() * Math.PI * 2;
+        circle.dx = Math.cos(angle) * 2; // Adjust speed as needed
+        circle.dy = Math.sin(angle) * 2; // Adjust speed as needed
+
 
         // Add the circle to the array
         circles.push(circle);
     }
 });
 
-// Update circle positions approximately every 6.94 milliseconds (about 144 frames per second)
-setInterval(updateCircles, 6.94);
+// Call update function to start the animation
+update();
