@@ -34,8 +34,24 @@ const drawCircle = (circle) => {
     ctx.fill();
 };
 
+let lastFrameTime = performance.now();
+let frameCount = 0;
+let fps = 0;
+
 // Function to update circle positions and handle collisions
 const update = () => {
+    // Calculate time elapsed since last frame
+    const currentTime = performance.now();
+    const deltaTime = currentTime - lastFrameTime;
+
+    // Calculate FPS once per second
+    frameCount++;
+    if (deltaTime > 500) {
+        fps = Math.round((frameCount * 1000) / deltaTime);
+        frameCount = 0;
+        lastFrameTime = currentTime; // Update lastFrameTime only after FPS calculation
+    }
+
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -108,6 +124,11 @@ const update = () => {
 
     // Remove circles marked for deletion
     circles = circles.filter(circle => !circle.markedForDeletion);
+
+    // Display FPS
+    ctx.fillStyle = 'white';
+    ctx.font = '16px Arial';
+    ctx.fillText(`FPS: ${fps}`, 10, 20);
 
     // CPU and GPU engage, DO IT AGAIN!
     requestAnimationFrame(update);
