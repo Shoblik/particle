@@ -18,6 +18,10 @@ const drawCircle = (x, y, color) => {
     ctx.fill();
 };
 
+let spamAnimation;
+let mouseX = null;
+let mouseY = null;
+
 // Function to update circle positions
 const update = () => {
     // Clear the canvas
@@ -46,13 +50,22 @@ const update = () => {
 };
 
 // Event listener for mousemove events
-canvas.addEventListener('mousemove', (event) => spawnNewCircles(event));
+canvas.addEventListener('mousemove', (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    spawnNewCircles(event);
+});
 
-const spawnNewCircles = (event) => {
-    // Get the mouse coordinates relative to the canvas
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
+    // If event object is present and contains clientX and clientY properties
+    if (event && event.clientX !== undefined && event.clientY !== undefined) {
+        // Get the mouse coordinates relative to the canvas
+        const rect = canvas.getBoundingClientRect();
+        mouseX = event.clientX - rect.left;
+        mouseY = event.clientY - rect.top;
+    }
+
+    console.log(mouseX + ' ' + mouseY);
 
     // Create 10 new circle objects
     const circleCount = 5;
@@ -75,10 +88,8 @@ const spawnNewCircles = (event) => {
     }
 };
 
-let spamAnimation;
-
-// Function to spam console with 'test'
 const spamConsole = () => {
+    spawnNewCircles(null, mouseX, mouseY);
     spamAnimation = requestAnimationFrame(spamConsole);
 };
 
