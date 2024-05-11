@@ -1,3 +1,6 @@
+import { Rectangle } from "./Rectangle.js";
+import { QuadTree } from "./QuadTree.js";
+
 // Get reference to the canvas element
 const canvas = document.getElementById('glCanvas');
 const ctx = canvas.getContext('2d');
@@ -5,6 +8,11 @@ const ctx = canvas.getContext('2d');
 // Set the canvas size to match the viewport
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+// QuadTree setup
+const quadTreeCapacity = 4; // Maximum number of circles in a quadrant
+const quadTreeBounds = new Rectangle(0, 0, canvas.width, canvas.height);
+const quadTree = new QuadTree(quadTreeBounds, quadTreeCapacity);
 
 // Array to store every rendered circle
 let circles = [];
@@ -31,6 +39,12 @@ const update = () => {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Clear the quad tree and insert circles
+    quadTree.clear();
+    for (const circle of circles) {
+        quadTree.insert(circle);
+    }
+
     // Loop through all circles
     for (let i = 0; i < circles.length; i++) {
         const circleA = circles[i];
@@ -45,44 +59,49 @@ const update = () => {
             circleA.markedForDeletion = true;
         }
 
-        // Check for collisions with other circles @todo There's probably better math that is faster...
-        for (let j = i + 1; j < circles.length; j++) {
-            const circleB = circles[j];
-            const dx = circleB.x - circleA.x;
-            const dy = circleB.y - circleA.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+        // Get nearby circles from the quad tree
+        const range = new Rectangle(circleA.x - circleRadius * 2, circleA.y - circleRadius * 2, circleRadius * 4, circleRadius * 4);
+        const nearbyCircles = quadTree.query(range);
 
-            if (distance < circleRadius * 2) {
-                // Circles collide, adjust velocities
-                const angle = Math.atan2(dy, dx);
-                const sine = Math.sin(angle);
-                const cosine = Math.cos(angle);
+        // Check for collisions with nearby circles
+        for (const circleB of nearbyCircles) {
+            if (circleA !== circleB) {
+                const dx = circleB.x - circleA.x;
+                const dy = circleB.y - circleA.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
 
-                // Rotate circleA's velocity
-                const vx0 = circleA.dx * cosine + circleA.dy * sine;
-                const vy0 = circleA.dy * cosine - circleA.dx * sine;
+                if (distance < circleRadius * 2) {
+                    // Circles collide, adjust velocities
+                    const angle = Math.atan2(dy, dx);
+                    const sine = Math.sin(angle);
+                    const cosine = Math.cos(angle);
 
-                // Rotate circleB's velocity
-                const vx1 = circleB.dx * cosine + circleB.dy * sine;
-                const vy1 = circleB.dy * cosine - circleB.dx * sine;
+                    // Rotate circleA's velocity
+                    const vx0 = circleA.dx * cosine + circleA.dy * sine;
+                    const vy0 = circleA.dy * cosine - circleA.dx * sine;
 
-                // New velocities after collision
-                const vxTotal = vx0 - vx1;
-                circleA.dx = ((circleA.radius - circleB.radius) * vx0 + 2 * circleB.radius * vx1) / (circleA.radius + circleB.radius);
-                circleB.dx = vxTotal + circleA.dx;
+                    // Rotate circleB's velocity
+                    const vx1 = circleB.dx * cosine + circleB.dy * sine;
+                    const vy1 = circleB.dy * cosine - circleB.dx * sine;
 
-                // Rotate velocities back
-                circleA.dy = vy0 * cosine + vx0 * sine;
-                circleA.dx = vx0 * cosine - vy0 * sine;
-                circleB.dy = vy1 * cosine + vx1 * sine;
-                circleB.dx = vx1 * cosine - vy1 * sine;
+                    // New velocities after collision
+                    const vxTotal = vx0 - vx1;
+                    circleA.dx = ((circleA.radius - circleB.radius) * vx0 + 2 * circleB.radius * vx1) / (circleA.radius + circleB.radius);
+                    circleB.dx = vxTotal + circleA.dx;
 
-                // Update positions to avoid overlapping
-                const overlap = circleRadius * 2 - distance + 1;
-                circleA.x -= overlap * Math.cos(angle);
-                circleA.y -= overlap * Math.sin(angle);
-                circleB.x += overlap * Math.cos(angle);
-                circleB.y += overlap * Math.sin(angle);
+                    // Rotate velocities back
+                    circleA.dy = vy0 * cosine + vx0 * sine;
+                    circleA.dx = vx0 * cosine - vy0 * sine;
+                    circleB.dy = vy1 * cosine + vx1 * sine;
+                    circleB.dx = vx1 * cosine - vy1 * sine;
+
+                    // Update positions to avoid overlapping
+                    const overlap = circleRadius * 2 - distance + 1;
+                    circleA.x -= overlap * Math.cos(angle);
+                    circleA.y -= overlap * Math.sin(angle);
+                    circleB.x += overlap * Math.cos(angle);
+                    circleB.y += overlap * Math.sin(angle);
+                }
             }
         }
     }
@@ -94,7 +113,7 @@ const update = () => {
     requestAnimationFrame(update);
 };
 
-const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
+const spawnNewCircles = (event = null, mouseX = null, mouseY = null, color = null) => {
     // starting to get dirty here... should clean this up. @todo Don't force this function to make decisions it doesn't need to
     if (event) {
         // Get the mouse coordinates relative to the canvas
@@ -104,14 +123,14 @@ const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
     }
 
     // Create X new circle objects
-    const circleCount = 5;
+    const circleCount = 1;
     for (let i = 0; i < circleCount; i++) {
         const circle = {
             x: mouseX,
             y: mouseY,
             dx: 0, // X direction (horizontal) of the drift
             dy: 0, // Y direction (vertical) of the drift
-            color: generateRandomColor(),
+            color: color ?? generateRandomColor(),
             radius: circleRadius
         };
 
@@ -125,9 +144,11 @@ const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
     }
 };
 
-const spamConsole = () => {
-    spawnNewCircles(null, mouseX, mouseY);
-    spamAnimation = requestAnimationFrame(spamConsole);
+let positionsToSpam = [];
+let spawnOnMouseMove = false;
+const startFixedCircleSpam = () => {
+    positionsToSpam.forEach((coords) => spawnNewCircles(null, coords[0], coords[1], coords[2]))
+    spamAnimation = requestAnimationFrame(startFixedCircleSpam);
 }
 
 const generateRandomColor = () => {
@@ -143,7 +164,7 @@ const generateRandomColor = () => {
 canvas.addEventListener('mousemove', (event) => {
     mouseX = event.clientX;
     mouseY = event.clientY;
-    spawnNewCircles(event);
+    if (spawnOnMouseMove) spawnNewCircles(event);
 });
 
 canvas.addEventListener('contextmenu', (event) => {
@@ -151,16 +172,24 @@ canvas.addEventListener('contextmenu', (event) => {
 });
 
 // Event listener for mousedown event
-document.addEventListener('mousedown', () => {
-    // Start spamming the console with 'test'
-    spamAnimation = requestAnimationFrame(spamConsole);
+document.addEventListener('mousedown', (event) => {
+    // if left click
+    if (event.button === 0) {
+        positionsToSpam.push([mouseX, mouseY, generateRandomColor()]);
+        if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
+    }
+});
+
+document.addEventListener('touchstart', event => {
+    positionsToSpam.push([event.touches[0].clientX, event.touches[0].clientY, generateRandomColor()]);
+    if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
 });
 
 // Event listener for mouseup event
-document.addEventListener('mouseup', () => {
-    // Stop spamming the console when mouse button is released
-    cancelAnimationFrame(spamAnimation);
-});
+// document.addEventListener('mouseup', () => {
+//     // Stop spamming the console when mouse button is released
+//     cancelAnimationFrame(spamAnimation);
+// });
 
 // Call update function to start the animation
 update();
