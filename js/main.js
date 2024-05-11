@@ -180,10 +180,10 @@ document.addEventListener('mousedown', (event) => {
     }
 });
 
-document.addEventListener('touchstart', event => {
-    positionsToSpam.push([event.touches[0].clientX, event.touches[0].clientY, generateRandomColor()]);
-    if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
-});
+// document.addEventListener('touchstart', event => {
+//     positionsToSpam.push([event.touches[0].clientX, event.touches[0].clientY, generateRandomColor()]);
+//     if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
+// });
 
 // Event listener for mouseup event
 // document.addEventListener('mouseup', () => {
