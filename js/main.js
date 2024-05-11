@@ -10,7 +10,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 // QuadTree setup
-const quadTreeCapacity = 4; // Maximum number of circles in a quadrant
+const quadTreeCapacity = 10; // Maximum number of circles in a quadrant
 const quadTreeBounds = new Rectangle(0, 0, canvas.width, canvas.height);
 const quadTree = new QuadTree(quadTreeBounds, quadTreeCapacity);
 
@@ -44,8 +44,8 @@ const update = () => {
     const currentTime = performance.now();
     const deltaTime = currentTime - lastFrameTime;
 
-    // Calculate FPS once per second
     frameCount++;
+    // Calculate FPS once every x milliseconds
     if (deltaTime > 500) {
         fps = Math.round((frameCount * 1000) / deltaTime);
         frameCount = 0;
