@@ -110,7 +110,7 @@ const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
     }
 
     // Create X new circle objects
-    const circleCount = 4;
+    const circleCount = 5;
     for (let i = 0; i < circleCount; i++) {
         const circle = {
             x: mouseX,
