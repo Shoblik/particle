@@ -25,24 +25,66 @@ const drawCircle = (circle) => {
 };
 
 // Function to update circle positions
+// Function to update circle positions and handle collisions
 const update = () => {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Loop through all circles
-    circles.forEach(circle => {
-        // Draw the circle
-        drawCircle(circle);
+    for (let i = 0; i < circles.length; i++) {
+        const circleA = circles[i];
+        drawCircle(circleA);
 
         // Update circle position based on its direction
-        circle.x += circle.dx;
-        circle.y += circle.dy;
+        circleA.x += circleA.dx;
+        circleA.y += circleA.dy;
 
         // Check if circle is out of bounds and mark it for deletion
-        if (circle.x < -circleRadius || circle.x > canvas.width + circleRadius || circle.y < -circleRadius || circle.y > canvas.height + circleRadius) {
-            circle.markedForDeletion = true;
+        if (circleA.x < -circleRadius || circleA.x > canvas.width + circleRadius || circleA.y < -circleRadius || circleA.y > canvas.height + circleRadius) {
+            circleA.markedForDeletion = true;
         }
-    });
+
+        // Check for collisions with other circles
+        for (let j = i + 1; j < circles.length; j++) {
+            const circleB = circles[j];
+            const dx = circleB.x - circleA.x;
+            const dy = circleB.y - circleA.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < circleRadius * 2) {
+                // Circles collide, adjust velocities
+                const angle = Math.atan2(dy, dx);
+                const sine = Math.sin(angle);
+                const cosine = Math.cos(angle);
+
+                // Rotate circleA's velocity
+                const vx0 = circleA.dx * cosine + circleA.dy * sine;
+                const vy0 = circleA.dy * cosine - circleA.dx * sine;
+
+                // Rotate circleB's velocity
+                const vx1 = circleB.dx * cosine + circleB.dy * sine;
+                const vy1 = circleB.dy * cosine - circleB.dx * sine;
+
+                // New velocities after collision
+                const vxTotal = vx0 - vx1;
+                circleA.dx = ((circleA.radius - circleB.radius) * vx0 + 2 * circleB.radius * vx1) / (circleA.radius + circleB.radius);
+                circleB.dx = vxTotal + circleA.dx;
+
+                // Rotate velocities back
+                circleA.dy = vy0 * cosine + vx0 * sine;
+                circleA.dx = vx0 * cosine - vy0 * sine;
+                circleB.dy = vy1 * cosine + vx1 * sine;
+                circleB.dx = vx1 * cosine - vy1 * sine;
+
+                // Update positions to avoid overlapping
+                const overlap = circleRadius * 2 - distance + 1;
+                circleA.x -= overlap * Math.cos(angle);
+                circleA.y -= overlap * Math.sin(angle);
+                circleB.x += overlap * Math.cos(angle);
+                circleB.y += overlap * Math.sin(angle);
+            }
+        }
+    }
 
     // Remove circles marked for deletion
     circles = circles.filter(circle => !circle.markedForDeletion);
