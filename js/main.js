@@ -51,28 +51,14 @@ const update = () => {
     requestAnimationFrame(update);
 };
 
-// Event listener for mousemove events
-canvas.addEventListener('mousemove', (event) => {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
-    spawnNewCircles(event);
-});
-
-const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
-    // If event object is present and contains clientX and clientY properties
-    if (event) {
-        // Get the mouse coordinates relative to the canvas
-        const rect = canvas.getBoundingClientRect();
-        mouseX = event.clientX - rect.left;
-        mouseY = event.clientY - rect.top;
-    }
-
+// Function to handle touch and mouse events
+const handleInput = (x, y) => {
     // Create X new circle objects
     const circleCount = 4;
     for (let i = 0; i < circleCount; i++) {
         const circle = {
-            x: mouseX,
-            y: mouseY,
+            x: x,
+            y: y,
             dx: 0, // X direction (horizontal) of the drift
             dy: 0, // Y direction (vertical) of the drift
             color: generateRandomColor(),
@@ -89,11 +75,7 @@ const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
     }
 };
 
-const spamConsole = () => {
-    spawnNewCircles(null, mouseX, mouseY);
-    spamAnimation = requestAnimationFrame(spamConsole);
-}
-
+// Function to generate random color
 const generateRandomColor = () => {
     // Generate random values for red, green, and blue components
     const red = Math.floor(Math.random() * 256); // Random integer between 0 and 255
@@ -104,20 +86,32 @@ const generateRandomColor = () => {
     return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
 };
 
+// Event listener for mousemove events
+canvas.addEventListener('mousemove', (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    handleInput(mouseX, mouseY);
+});
+
+// Function to handle touch events
+const handleTouch = (event) => {
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = event.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    handleInput(x, y);
+};
+
+// Event listener for touchstart event
+canvas.addEventListener('touchstart', handleTouch);
+
+// Event listener for touchmove event
+canvas.addEventListener('touchmove', handleTouch);
+
+// Disable right-click context menu on the canvas
 canvas.addEventListener('contextmenu', (event) => {
     event.preventDefault();
-});
-
-// Event listener for mousedown event
-document.addEventListener('mousedown', () => {
-    // Start spamming the console with 'test'
-    spamAnimation = requestAnimationFrame(spamConsole);
-});
-
-// Event listener for mouseup event
-document.addEventListener('mouseup', () => {
-    // Stop spamming the console when mouse button is released
-    cancelAnimationFrame(spamAnimation);
 });
 
 // Call update function to start the animation
