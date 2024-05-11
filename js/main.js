@@ -116,7 +116,7 @@ const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
         };
 
         // Set a random direction
-        const angle = Math.random() * Math.PI * 2;
+        const angle = 1;
         circle.dx = Math.cos(angle) * 2; // Adjust speed as needed
         circle.dy = Math.sin(angle) * 2; // Adjust speed as needed
 
@@ -135,8 +135,11 @@ const generateRandomColor = () => {
     const green = Math.floor(Math.random() * 256);
     const blue = Math.floor(Math.random() * 256);
 
+    return 'hotpink';
+
     // Construct the color string in hexadecimal format
     return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
+
 };
 
 // DOM Events
