@@ -6,8 +6,10 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Array to store circles
+// Array to store every rendered circle
 let circles = [];
+
+// @todo make this a slider in a menu to mess with thing on the fly
 const circleRadius = 10;
 
 let spamAnimation;
@@ -17,14 +19,13 @@ let mouseY = null;
 // Function to draw a circle
 const drawCircle = (circle) => {
     ctx.beginPath();
-    // make circles grow
+    // make circles grow here if desired
     let circleRadiusChange = 0;
     ctx.arc(circle.x, circle.y, circle.radius += circleRadiusChange, 0, Math.PI * 2);
     ctx.fillStyle = circle.color; // You can change the color here
     ctx.fill();
 };
 
-// Function to update circle positions
 // Function to update circle positions and handle collisions
 const update = () => {
     // Clear the canvas
@@ -44,7 +45,7 @@ const update = () => {
             circleA.markedForDeletion = true;
         }
 
-        // Check for collisions with other circles
+        // Check for collisions with other circles @todo There's probably better math that is faster...
         for (let j = i + 1; j < circles.length; j++) {
             const circleB = circles[j];
             const dx = circleB.x - circleA.x;
@@ -89,19 +90,12 @@ const update = () => {
     // Remove circles marked for deletion
     circles = circles.filter(circle => !circle.markedForDeletion);
 
-    // Request the next animation frame
+    // CPU and GPU engage, DO IT AGAIN!
     requestAnimationFrame(update);
 };
 
-// Event listener for mousemove events
-canvas.addEventListener('mousemove', (event) => {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
-    spawnNewCircles(event);
-});
-
 const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
-    // If event object is present and contains clientX and clientY properties
+    // starting to get dirty here... should clean this up. @todo Don't force this function to make decisions it doesn't need to
     if (event) {
         // Get the mouse coordinates relative to the canvas
         const rect = canvas.getBoundingClientRect();
@@ -121,7 +115,7 @@ const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
             radius: circleRadius
         };
 
-        // Set a random direction after a short delay
+        // Set a random direction
         const angle = Math.random() * Math.PI * 2;
         circle.dx = Math.cos(angle) * 2; // Adjust speed as needed
         circle.dy = Math.sin(angle) * 2; // Adjust speed as needed
@@ -137,14 +131,20 @@ const spamConsole = () => {
 }
 
 const generateRandomColor = () => {
-    // Generate random values for red, green, and blue components
-    const red = Math.floor(Math.random() * 256); // Random integer between 0 and 255
-    const green = Math.floor(Math.random() * 256); // Random integer between 0 and 255
-    const blue = Math.floor(Math.random() * 256); // Random integer between 0 and 255
+    const red = Math.floor(Math.random() * 256);
+    const green = Math.floor(Math.random() * 256);
+    const blue = Math.floor(Math.random() * 256);
 
     // Construct the color string in hexadecimal format
     return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
 };
+
+// DOM Events
+canvas.addEventListener('mousemove', (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    spawnNewCircles(event);
+});
 
 canvas.addEventListener('contextmenu', (event) => {
     event.preventDefault();
