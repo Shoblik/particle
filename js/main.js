@@ -10,17 +10,19 @@ canvas.height = window.innerHeight;
 let circles = [];
 const circleRadius = 10;
 
-// Function to draw a circle
-const drawCircle = (x, y, color) => {
-    ctx.beginPath();
-    ctx.arc(x, y, circleRadius, 0, Math.PI * 2);
-    ctx.fillStyle = color; // You can change the color here
-    ctx.fill();
-};
-
 let spamAnimation;
 let mouseX = null;
 let mouseY = null;
+
+// Function to draw a circle
+const drawCircle = (circle) => {
+    ctx.beginPath();
+    // make circles grow
+    let circleRadiusChange = 0;
+    ctx.arc(circle.x, circle.y, circle.radius += circleRadiusChange, 0, Math.PI * 2);
+    ctx.fillStyle = circle.color; // You can change the color here
+    ctx.fill();
+};
 
 // Function to update circle positions
 const update = () => {
@@ -30,7 +32,7 @@ const update = () => {
     // Loop through all circles
     circles.forEach(circle => {
         // Draw the circle
-        drawCircle(circle.x, circle.y, circle.color);
+        drawCircle(circle);
 
         // Update circle position based on its direction
         circle.x += circle.dx;
@@ -58,17 +60,15 @@ canvas.addEventListener('mousemove', (event) => {
 
 const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
     // If event object is present and contains clientX and clientY properties
-    if (event && event.clientX !== undefined && event.clientY !== undefined) {
+    if (event) {
         // Get the mouse coordinates relative to the canvas
         const rect = canvas.getBoundingClientRect();
         mouseX = event.clientX - rect.left;
         mouseY = event.clientY - rect.top;
     }
 
-    console.log(mouseX + ' ' + mouseY);
-
-    // Create 10 new circle objects
-    const circleCount = 5;
+    // Create X new circle objects
+    const circleCount = 4;
     for (let i = 0; i < circleCount; i++) {
         const circle = {
             x: mouseX,
@@ -76,6 +76,7 @@ const spawnNewCircles = (event, mouseX=null, mouseY=null) => {
             dx: 0, // X direction (horizontal) of the drift
             dy: 0, // Y direction (vertical) of the drift
             color: generateRandomColor(),
+            radius: circleRadius
         };
 
         // Set a random direction after a short delay
