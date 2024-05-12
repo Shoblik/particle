@@ -25,7 +25,7 @@ let circles = [];
 // @todo make this a slider in a menu to mess with thing on the fly
 let circleRadius = Number(document.getElementById('radiusSlider').value);
 
-let spamAnimation;
+let spawnAnimation;
 
 // Function to draw a circle
 const drawCircle = (circle) => {
@@ -140,14 +140,6 @@ const update = () => {
 };
 
 const spawnNewCircles = (event = null, mouseX = null, mouseY = null, color = null) => {
-    // starting to get dirty here... should clean this up. @todo Don't force this function to make decisions it doesn't need to
-    if (event) {
-        // Get the mouse coordinates relative to the canvas
-        const rect = canvas.getBoundingClientRect();
-        mouseX = event.clientX - rect.left;
-        mouseY = event.clientY - rect.top;
-    }
-
     // Create X new circle objects
     for (let i = 0; i < circleCount; i++) {
         const circle = {
@@ -169,10 +161,10 @@ const spawnNewCircles = (event = null, mouseX = null, mouseY = null, color = nul
     }
 };
 
-let positionsToSpam = [];
-const startFixedCircleSpam = () => {
-    positionsToSpam.forEach((coords) => spawnNewCircles(null, coords[0], coords[1], coords[2]))
-    spamAnimation = requestAnimationFrame(startFixedCircleSpam);
+let positionsToSpawn = [];
+const startFixedCircleSpawn = () => {
+    positionsToSpawn.forEach((coords) => spawnNewCircles(null, coords[0], coords[1], coords[2]))
+    spawnAnimation = requestAnimationFrame(startFixedCircleSpawn);
 }
 
 const generateRandomColor = () => {
@@ -192,14 +184,14 @@ canvas.addEventListener('contextmenu', (event) => {
 document.addEventListener('mousedown', (event) => {
     // if left click
     if (event.button === 0) {
-        positionsToSpam.push([event.clientX, event.clientY, generateRandomColor()]);
+        positionsToSpawn.push([event.clientX, event.clientY, generateRandomColor()]);
         menu.displaySpawnPoints();
-        if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
+        if (!spawnAnimation) requestAnimationFrame(startFixedCircleSpawn);
     }
 
-    // middle click removes a point, the oldest existing one.
+    // middle click removes a point, newest to oldest.
     if (event.button === 1) {
-        positionsToSpam.shift();
+        positionsToSpawn.pop();
         menu.displaySpawnPoints();
     }
 });
@@ -248,6 +240,8 @@ const menu = {
         document.getElementById('toggleCollision').addEventListener('change', (event) => {
             collisionDetection = event.target.checked;
         })
+
+        document.getElementById('clearSpawnPoints').addEventListener('mousedown', () => { mod.removeAllSpawnPoints() })
     },
 
     toggleMenu: () => {
@@ -265,7 +259,7 @@ const menu = {
         const spawnPoints = document.getElementById('spawnPoints');
         spawnPoints.innerHTML = '';
 
-        positionsToSpam.forEach((oneSpawn, index) => {
+        positionsToSpawn.forEach((oneSpawn, index) => {
             let tmpBtn = document.createElement('button');
             let toolTipDiv = null;
 
@@ -277,6 +271,10 @@ const menu = {
             tmpBtn.addEventListener('mouseout', () => mod.removeSpawnPointDisplay(toolTipDiv));
             spawnPoints.appendChild(tmpBtn);
         });
+    },
+
+    clearSpawnPointsFromMenu: () => {
+        document.getElementById('spawnPoints').innerHTML = '';
     }
 }
 
@@ -304,6 +302,11 @@ const mod = {
 
     removeSpawnPointDisplay: (div) => {
         div.remove();
+    },
+
+    removeAllSpawnPoints: () => {
+        positionsToSpawn = [];
+        menu.clearSpawnPointsFromMenu();
     }
 }
 

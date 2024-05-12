@@ -17,11 +17,11 @@ canvas {
 .menu {
     position: absolute;
     background: rgb(0 0 0 / 54%);
-    padding: 8px;
+    padding: 16px 32px;
     font-family: helvetica;
     bottom: 0;
     z-index: 1001;
-    width: 300px;
+    width: 350px;
     transition: .5s;
     transform: translateX(-100%);
     box-sizing: border-box;
@@ -80,6 +80,18 @@ div.spawn-points button {
     border: 1px solid transparent;
     margin: 0 0;
     padding: 8px 16px;
+}
+
+.scary-red {
+    color: #dc3545;
+}
+
+.clear-points {
+    text-decoration: underline;
+}
+
+.clear-points {
+    cursor: pointer;   
 }
 
 @media (max-width: 768px) {
