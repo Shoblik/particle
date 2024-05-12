@@ -16,6 +16,8 @@ const quadTreeCapacity = 10; // Maximum number of circles in a quadrant
 const quadTreeBounds = new Rectangle(0, 0, canvas.width, canvas.height);
 const quadTree = new QuadTree(quadTreeBounds, quadTreeCapacity);
 
+let collisionDetection = true;
+
 // Array to store every rendered circle
 let circles = [];
 
@@ -75,48 +77,50 @@ const update = () => {
             circleA.markedForDeletion = true;
         }
 
-        // Get nearby circles from the quad tree
-        const range = new Rectangle(circleA.x - circleRadius * 2, circleA.y - circleRadius * 2, circleRadius * 4, circleRadius * 4);
-        const nearbyCircles = quadTree.query(range);
+        if (collisionDetection) {
+            // Get nearby circles from the quad tree
+            const range = new Rectangle(circleA.x - circleRadius * 2, circleA.y - circleRadius * 2, circleRadius * 4, circleRadius * 4);
+            const nearbyCircles = quadTree.query(range);
 
-        // Check for collisions with nearby circles
-        for (const circleB of nearbyCircles) {
-            if (circleA !== circleB) {
-                const dx = circleB.x - circleA.x;
-                const dy = circleB.y - circleA.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+            // Check for collisions with nearby circles
+            for (const circleB of nearbyCircles) {
+                if (circleA !== circleB) {
+                    const dx = circleB.x - circleA.x;
+                    const dy = circleB.y - circleA.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance < circleRadius * 2) {
-                    // Circles collide, adjust velocities
-                    const angle = Math.atan2(dy, dx);
-                    const sine = Math.sin(angle);
-                    const cosine = Math.cos(angle);
+                    if (distance < circleRadius * 2) {
+                        // Circles collide, adjust velocities
+                        const angle = Math.atan2(dy, dx);
+                        const sine = Math.sin(angle);
+                        const cosine = Math.cos(angle);
 
-                    // Rotate circleA's velocity
-                    const vx0 = circleA.dx * cosine + circleA.dy * sine;
-                    const vy0 = circleA.dy * cosine - circleA.dx * sine;
+                        // Rotate circleA's velocity
+                        const vx0 = circleA.dx * cosine + circleA.dy * sine;
+                        const vy0 = circleA.dy * cosine - circleA.dx * sine;
 
-                    // Rotate circleB's velocity
-                    const vx1 = circleB.dx * cosine + circleB.dy * sine;
-                    const vy1 = circleB.dy * cosine - circleB.dx * sine;
+                        // Rotate circleB's velocity
+                        const vx1 = circleB.dx * cosine + circleB.dy * sine;
+                        const vy1 = circleB.dy * cosine - circleB.dx * sine;
 
-                    // New velocities after collision
-                    const vxTotal = vx0 - vx1;
-                    circleA.dx = ((circleA.radius - circleB.radius) * vx0 + 2 * circleB.radius * vx1) / (circleA.radius + circleB.radius);
-                    circleB.dx = vxTotal + circleA.dx;
+                        // New velocities after collision
+                        const vxTotal = vx0 - vx1;
+                        circleA.dx = ((circleA.radius - circleB.radius) * vx0 + 2 * circleB.radius * vx1) / (circleA.radius + circleB.radius);
+                        circleB.dx = vxTotal + circleA.dx;
 
-                    // Rotate velocities back
-                    circleA.dy = vy0 * cosine + vx0 * sine;
-                    circleA.dx = vx0 * cosine - vy0 * sine;
-                    circleB.dy = vy1 * cosine + vx1 * sine;
-                    circleB.dx = vx1 * cosine - vy1 * sine;
+                        // Rotate velocities back
+                        circleA.dy = vy0 * cosine + vx0 * sine;
+                        circleA.dx = vx0 * cosine - vy0 * sine;
+                        circleB.dy = vy1 * cosine + vx1 * sine;
+                        circleB.dx = vx1 * cosine - vy1 * sine;
 
-                    // Update positions to avoid overlapping
-                    const overlap = circleRadius * 2 - distance + 1;
-                    circleA.x -= overlap * Math.cos(angle);
-                    circleA.y -= overlap * Math.sin(angle);
-                    circleB.x += overlap * Math.cos(angle);
-                    circleB.y += overlap * Math.sin(angle);
+                        // Update positions to avoid overlapping
+                        const overlap = circleRadius * 2 - distance + 1;
+                        circleA.x -= overlap * Math.cos(angle);
+                        circleA.y -= overlap * Math.sin(angle);
+                        circleB.x += overlap * Math.cos(angle);
+                        circleB.y += overlap * Math.sin(angle);
+                    }
                 }
             }
         }
@@ -231,6 +235,10 @@ const menu = {
             event.stopPropagation();
             menu.toggleMenu();
         });
+
+        document.getElementById('toggleCollision').addEventListener('change', (event) => {
+            collisionDetection = event.target.checked;
+        })
     },
 
     toggleMenu: () => {

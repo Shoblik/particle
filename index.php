@@ -14,7 +14,7 @@
         </button>
         <div class="menu" id="menu">
             <div class="standard-menu-item">
-                <p>Version 1.03</p>
+                <p>Version 1.17</p>
             </div>
             <div class="standard-menu-item">
                 <label for="radiusSlider">Circle Radius = <span id="circleRadiusValDisplay"></span>px</label>
@@ -23,6 +23,10 @@
             <div class="standard-menu-item">
                 <label for="spawnFreqSlider">Spawn Frequency = <span id="spawnFreqValDisplay"></span> per frame</label>
                 <input type="range" id="spawnFreqSlider" name="spawnFreqSlider" min="0" max="30" value="1">
+            </div>
+            <div class="standard-menu-item">
+                <label for="toggleCollision">Collision Detection: </label>
+                <input type="checkbox" id="toggleCollision" name="toggleCollision" checked/>
             </div>
         </div>
         <canvas id="glCanvas" width="600" height="400"></canvas>
