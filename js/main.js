@@ -5,6 +5,8 @@ import { QuadTree } from "./QuadTree.js";
 const canvas = document.getElementById('glCanvas');
 const ctx = canvas.getContext('2d');
 
+let circleCount = document.getElementById('spawnFreqSlider').value;
+
 // Set the canvas size to match the viewport
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -18,7 +20,7 @@ const quadTree = new QuadTree(quadTreeBounds, quadTreeCapacity);
 let circles = [];
 
 // @todo make this a slider in a menu to mess with thing on the fly
-const circleRadius = 10;
+let circleRadius = Number(document.getElementById('radiusSlider').value);
 
 let spamAnimation;
 let mouseX = null;
@@ -144,7 +146,6 @@ const spawnNewCircles = (event = null, mouseX = null, mouseY = null, color = nul
     }
 
     // Create X new circle objects
-    const circleCount = 1;
     for (let i = 0; i < circleCount; i++) {
         const circle = {
             x: mouseX,
@@ -195,11 +196,23 @@ canvas.addEventListener('contextmenu', (event) => {
 // Event listener for mousedown event
 document.addEventListener('mousedown', (event) => {
     // if left click
-    if (event.button === 0) {
+    if (event.button === 2) {
         positionsToSpam.push([mouseX, mouseY, generateRandomColor()]);
         if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
     }
+
+    if (event.button === 1) {
+        positionsToSpam.shift();
+    }
 });
+
+document.getElementById('radiusSlider').addEventListener('input', (event) => {
+    circleRadius = Number(event.target.value);
+})
+
+document.getElementById('spawnFreqSlider').addEventListener('input', (event) => {
+    circleCount = Number(event.target.value);
+})
 
 // document.addEventListener('touchstart', event => {
 //     positionsToSpam.push([event.touches[0].clientX, event.touches[0].clientY, generateRandomColor()]);

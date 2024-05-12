@@ -13,3 +13,12 @@ canvas {
     background-color: black;
     border: 1px solid #000;
 }
+
+.menu {
+    position: absolute;
+    background: rgb(255 255 255 / 54%);
+    padding: 8px;
+    font-family: helvetica;
+    bottom: 0;
+    border-radius: 8px;
+}
