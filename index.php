@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Physics Engine with WebGL</title>
+    <title>Particles in WebGL</title>
     <link rel="stylesheet" href="./css/app.css?ver=<?php echo rand(0,1000); ?>">
 </head>
     <body>
@@ -26,7 +26,7 @@
             </div>
             <div class="standard-menu-item">
                 <label for="circleSpeedSlider">Circle Speed = <span id="circleSpeedSliderValDisplay"></span></label>
-                <input type="range" id="circleSpeedSlider" name="circleSpeedSlider" min="1" max="10" value="2">
+                <input type="range" id="circleSpeedSlider" name="circleSpeedSlider" min="1" max="100" value="2">
             </div>
             <div class="standard-menu-item">
                 <label for="toggleCollision">Collision Detection: </label>
