@@ -14,7 +14,7 @@
         </button>
         <div class="menu" id="menu">
             <div class="standard-menu-item">
-                <p>Version 1.64</p>
+                <p>Version 1.97</p>
             </div>
             <div class="standard-menu-item">
                 <label for="radiusSlider">Circle Radius = <span id="circleRadiusValDisplay"></span>px</label>
