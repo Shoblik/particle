@@ -128,7 +128,7 @@ const update = () => {
     // Display FPS
     ctx.fillStyle = 'white';
     ctx.font = '16px Arial';
-    ctx.fillText(`FPS: ${fps}`, 40, 20);
+    ctx.fillText(`FPS: ${fps}`, 45, 20);
 
     // CPU and GPU engage, DO IT AGAIN!
     requestAnimationFrame(update);

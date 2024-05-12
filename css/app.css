@@ -16,16 +16,17 @@ canvas {
 
 .menu {
     position: absolute;
-    background: rgb(255 255 255 / 54%);
+    background: rgb(0 0 0 / 54%);
     padding: 8px;
     font-family: helvetica;
     bottom: 0;
-    border-radius: 8px 16px;
     z-index: 100;
     min-width: 300px;
     transition: .5s;
     transform: translateX(-100%);
     box-sizing: border-box;
+    color: white;
+    border: 1px solid white;
 }
 
 .show-menu {
