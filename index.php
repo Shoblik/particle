@@ -14,7 +14,7 @@
         </button>
         <div class="menu" id="menu">
             <div class="standard-menu-item">
-                <p>Version 1.17</p>
+                <p>Version 1.32</p>
             </div>
             <div class="standard-menu-item">
                 <label for="radiusSlider">Circle Radius = <span id="circleRadiusValDisplay"></span>px</label>
@@ -23,6 +23,10 @@
             <div class="standard-menu-item">
                 <label for="spawnFreqSlider">Spawn Frequency = <span id="spawnFreqValDisplay"></span> per frame</label>
                 <input type="range" id="spawnFreqSlider" name="spawnFreqSlider" min="0" max="30" value="1">
+            </div>
+            <div class="standard-menu-item">
+                <label for="circleSpeedSlider">Circle Speed = <span id="circleSpeedSliderValDisplay"></span></label>
+                <input type="range" id="circleSpeedSlider" name="circleSpeedSlider" min="1" max="10" value="2">
             </div>
             <div class="standard-menu-item">
                 <label for="toggleCollision">Collision Detection: </label>

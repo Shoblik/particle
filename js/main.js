@@ -6,6 +6,7 @@ const canvas = document.getElementById('glCanvas');
 const ctx = canvas.getContext('2d');
 
 let circleCount = document.getElementById('spawnFreqSlider').value;
+let circleSpeed= document.getElementById('circleSpeedSlider').value;
 
 // Set the canvas size to match the viewport
 canvas.width = window.innerWidth;
@@ -160,8 +161,8 @@ const spawnNewCircles = (event = null, mouseX = null, mouseY = null, color = nul
 
         // Set a random direction
         const angle = Math.random() * Math.PI * 2;
-        circle.dx = Math.cos(angle) * 2; // Adjust speed as needed
-        circle.dy = Math.sin(angle) * 2; // Adjust speed as needed
+        circle.dx = Math.cos(angle) * circleSpeed; // Adjust speed as needed
+        circle.dy = Math.sin(angle) * circleSpeed; // Adjust speed as needed
 
         // Add the circle to the array
         circles.push(circle);
@@ -212,6 +213,7 @@ const menu = {
     initMenuVals: () => {
         menu.updateMenuOnValChange('circleRadiusValDisplay', circleRadius);
         menu.updateMenuOnValChange('spawnFreqValDisplay', circleCount);
+        menu.updateMenuOnValChange('circleSpeedSliderValDisplay', circleSpeed);
     },
 
     initEventHandlers: () => {
@@ -229,6 +231,11 @@ const menu = {
         document.getElementById('spawnFreqSlider').addEventListener('input', (event) => {
             circleCount = Number(event.target.value);
             menu.updateMenuOnValChange('spawnFreqValDisplay', circleCount);
+        })
+
+        document.getElementById('circleSpeedSlider').addEventListener('input', (event) => {
+            circleSpeed = Number(event.target.value);
+            menu.updateMenuOnValChange('circleSpeedSliderValDisplay', circleSpeed);
         })
 
         document.getElementById('toggleMenuBtn').addEventListener('mousedown', () => {
