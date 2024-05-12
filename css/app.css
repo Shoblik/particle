@@ -46,11 +46,6 @@ canvas {
     width: 100%;
 }
 
-.toggle-menu {
-    position: absolute;
-    background: rgb(255 255 255 / 72%);
-}
-
 .toggle-menu:hover {
     cursor: pointer;
 }
@@ -58,8 +53,13 @@ canvas {
 div.hamburger {
     width: 16px;
     height: 2px;
-    background-color: black;
+    background-color: white;
     margin: 4px 0;
+}
+.toggle-menu {
+    position: absolute;
+    background: rgb(0 0 0 / 72%);
+    border: 1px solid white;
 }
 
 .standard-menu-item li {
