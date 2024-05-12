@@ -20,8 +20,8 @@ canvas {
     padding: 8px;
     font-family: helvetica;
     bottom: 0;
-    z-index: 100;
-    min-width: 300px;
+    z-index: 1001;
+    width: 300px;
     transition: .5s;
     transform: translateX(-100%);
     box-sizing: border-box;
@@ -74,6 +74,12 @@ div.hamburger {
 .standard-menu-item ul {
     margin: 0 0 0px 0;
     padding: 0 0 0px 16px;
+}
+
+div.spawn-points button {
+    border: 1px solid transparent;
+    margin: 0 0;
+    padding: 8px 16px;
 }
 
 @media (max-width: 768px) {

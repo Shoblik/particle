@@ -193,12 +193,14 @@ document.addEventListener('mousedown', (event) => {
     // if left click
     if (event.button === 0) {
         positionsToSpam.push([event.clientX, event.clientY, generateRandomColor()]);
+        menu.displaySpawnPoints();
         if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
     }
 
     // middle click removes a point, the oldest existing one.
     if (event.button === 1) {
         positionsToSpam.shift();
+        menu.displaySpawnPoints();
     }
 });
 
@@ -257,6 +259,51 @@ const menu = {
             document.getElementById('menu').classList.add('show-menu');
             menu.menuOpen = true;
         }
+    },
+
+    displaySpawnPoints: function() {
+        const spawnPoints = document.getElementById('spawnPoints');
+        spawnPoints.innerHTML = '';
+
+        positionsToSpam.forEach((oneSpawn, index) => {
+            let tmpBtn = document.createElement('button');
+            let toolTipDiv = null;
+
+            tmpBtn.style.background = oneSpawn[2];
+            tmpBtn.innerText = index + 1;
+            tmpBtn.addEventListener('mouseover', () => {
+                toolTipDiv = mod.showSpawnPoint(oneSpawn[0], oneSpawn[1])
+            });
+            tmpBtn.addEventListener('mouseout', () => mod.removeSpawnPointDisplay(toolTipDiv));
+            spawnPoints.appendChild(tmpBtn);
+        });
+    }
+}
+
+const mod = {
+    showSpawnPoint: (x,y) => {
+        console.log(x + ', ' + y);
+
+        // Create a div element
+        const div = document.createElement('div');
+        div.style.position = 'absolute';
+        div.style.top = y + 'px'; // Position the div at the specified y coordinate
+        div.style.left = x + 'px'; // Position the div at the specified x coordinate
+        div.style.width = '35px'; // Set the width of the div
+        div.style.height = '35px'; // Set the height of the div
+        div.style.backgroundColor = 'red'; // Set the background color of the div
+        div.style.border = '2px solid black'; // Set the border of the div
+        div.style.zIndex = '1000'; // Set the z-index to ensure it appears above the canvas
+        div.style.transform = 'translate(-50%, -50%)';
+
+        // Append the div to the document body
+        document.body.appendChild(div);
+
+        return div;
+    },
+
+    removeSpawnPointDisplay: (div) => {
+        div.remove();
     }
 }
 

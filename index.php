@@ -14,7 +14,7 @@
         </button>
         <div class="menu" id="menu">
             <div class="standard-menu-item">
-                <p>Version 1.32</p>
+                <p>Version 1.64</p>
             </div>
             <div class="standard-menu-item">
                 <label for="radiusSlider">Circle Radius = <span id="circleRadiusValDisplay"></span>px</label>
@@ -31,6 +31,10 @@
             <div class="standard-menu-item">
                 <label for="toggleCollision">Collision Detection: </label>
                 <input type="checkbox" id="toggleCollision" name="toggleCollision" checked/>
+            </div>
+            <div class="standard-menu-item">
+                <p>Active Spawn Points: </p>
+                <div id="spawnPoints" class="spawn-points"></div>
             </div>
         </div>
         <canvas id="glCanvas" width="600" height="400"></canvas>
