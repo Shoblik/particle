@@ -20,5 +20,65 @@ canvas {
     padding: 8px;
     font-family: helvetica;
     bottom: 0;
-    border-radius: 8px;
+    border-radius: 8px 16px;
+    z-index: 100;
+    min-width: 300px;
+    transition: .5s;
+    transform: translateX(-100%);
+    box-sizing: border-box;
+}
+
+.show-menu {
+    transform: none !important;
+}
+
+.standard-menu-item {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.standard-menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.menu input[type=range] {
+    width: 100%;
+}
+
+.toggle-menu {
+    position: absolute;
+    background: rgb(255 255 255 / 72%);
+}
+
+.toggle-menu:hover {
+    cursor: pointer;
+}
+
+div.hamburger {
+    width: 16px;
+    height: 2px;
+    background-color: black;
+    margin: 4px 0;
+}
+
+.standard-menu-item li {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+}
+
+.standard-menu-item p {
+    margin: 0 0 16px 0;
+}
+
+.standard-menu-item ul {
+    margin: 0 0 0px 0;
+    padding: 0 0 0px 16px;
+}
+
+@media (max-width: 768px) {
+    .menu {
+        min-width: 100%;
+        width: 100%;
+        border-radius: 0;
+    }
 }

@@ -23,8 +23,6 @@ let circles = [];
 let circleRadius = Number(document.getElementById('radiusSlider').value);
 
 let spamAnimation;
-let mouseX = null;
-let mouseY = null;
 
 // Function to draw a circle
 const drawCircle = (circle) => {
@@ -130,7 +128,7 @@ const update = () => {
     // Display FPS
     ctx.fillStyle = 'white';
     ctx.font = '16px Arial';
-    ctx.fillText(`FPS: ${fps}`, 10, 20);
+    ctx.fillText(`FPS: ${fps}`, 40, 20);
 
     // CPU and GPU engage, DO IT AGAIN!
     requestAnimationFrame(update);
@@ -167,7 +165,6 @@ const spawnNewCircles = (event = null, mouseX = null, mouseY = null, color = nul
 };
 
 let positionsToSpam = [];
-let spawnOnMouseMove = false;
 const startFixedCircleSpam = () => {
     positionsToSpam.forEach((coords) => spawnNewCircles(null, coords[0], coords[1], coords[2]))
     spamAnimation = requestAnimationFrame(startFixedCircleSpam);
@@ -182,13 +179,6 @@ const generateRandomColor = () => {
     return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
 };
 
-// DOM Events
-canvas.addEventListener('mousemove', (event) => {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
-    if (spawnOnMouseMove) spawnNewCircles(event);
-});
-
 canvas.addEventListener('contextmenu', (event) => {
     event.preventDefault();
 });
@@ -196,34 +186,67 @@ canvas.addEventListener('contextmenu', (event) => {
 // Event listener for mousedown event
 document.addEventListener('mousedown', (event) => {
     // if left click
-    if (event.button === 2) {
-        positionsToSpam.push([mouseX, mouseY, generateRandomColor()]);
+    if (event.button === 0) {
+        positionsToSpam.push([event.clientX, event.clientY, generateRandomColor()]);
         if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
     }
 
+    // middle click removes a point, the oldest existing one.
     if (event.button === 1) {
         positionsToSpam.shift();
     }
 });
 
-document.getElementById('radiusSlider').addEventListener('input', (event) => {
-    circleRadius = Number(event.target.value);
-})
+// menu event handlers
+const menu = {
+    menuOpen: false,
 
-document.getElementById('spawnFreqSlider').addEventListener('input', (event) => {
-    circleCount = Number(event.target.value);
-})
+    updateMenuOnValChange: (target, value) => {
+        document.getElementById(target).innerText = value;
+    },
 
-// document.addEventListener('touchstart', event => {
-//     positionsToSpam.push([event.touches[0].clientX, event.touches[0].clientY, generateRandomColor()]);
-//     if (!spamAnimation) requestAnimationFrame(startFixedCircleSpam);
-// });
+    initMenuVals: () => {
+        menu.updateMenuOnValChange('circleRadiusValDisplay', circleRadius);
+        menu.updateMenuOnValChange('spawnFreqValDisplay', circleCount);
+    },
 
-// Event listener for mouseup event
-// document.addEventListener('mouseup', () => {
-//     // Stop spamming the console when mouse button is released
-//     cancelAnimationFrame(spamAnimation);
-// });
+    initEventHandlers: () => {
+        document.querySelectorAll('.menu, .submenu').forEach(menu => {
+            menu.addEventListener('mousedown', (event) => {
+                event.stopPropagation();
+            });
+        });
+
+        document.getElementById('radiusSlider').addEventListener('input', (event) => {
+            circleRadius = Number(event.target.value);
+            menu.updateMenuOnValChange('circleRadiusValDisplay', circleRadius);
+        })
+
+        document.getElementById('spawnFreqSlider').addEventListener('input', (event) => {
+            circleCount = Number(event.target.value);
+            menu.updateMenuOnValChange('spawnFreqValDisplay', circleCount);
+        })
+
+        document.getElementById('toggleMenuBtn').addEventListener('mousedown', () => {
+            event.stopPropagation();
+            menu.toggleMenu();
+        });
+    },
+
+    toggleMenu: () => {
+        if (menu.menuOpen) {
+            // close it
+            document.getElementById('menu').classList.remove('show-menu');
+            menu.menuOpen = false;
+        } else {
+            document.getElementById('menu').classList.add('show-menu');
+            menu.menuOpen = true;
+        }
+    }
+}
+
+menu.initEventHandlers()
+menu.initMenuVals();
 
 // Call update function to start the animation
 update();
