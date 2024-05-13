@@ -7,6 +7,7 @@ const ctx = canvas.getContext('2d');
 
 let circleCount = document.getElementById('spawnFreqSlider').value;
 let circleSpeed= document.getElementById('circleSpeedSlider').value;
+let worms = false;
 
 // Set the canvas size to match the viewport
 canvas.width = window.innerWidth;
@@ -21,13 +22,9 @@ let collisionDetection = true;
 
 // Array to store every rendered circle
 let circles = [];
-
-// @todo make this a slider in a menu to mess with thing on the fly
 let circleRadius = Number(document.getElementById('radiusSlider').value);
-
 let spawnAnimation;
 
-// Function to draw a circle
 const drawCircle = (circle) => {
     ctx.beginPath();
     // make circles grow here if desired
@@ -56,7 +53,7 @@ const update = () => {
     }
 
     // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!worms) ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Clear the quad tree and insert circles
     quadTree.clear();
@@ -239,6 +236,10 @@ const menu = {
 
         document.getElementById('toggleCollision').addEventListener('change', (event) => {
             collisionDetection = event.target.checked;
+        })
+
+        document.getElementById('worms').addEventListener('change', (event) => {
+            worms = event.target.checked;
         })
 
         document.getElementById('clearSpawnPoints').addEventListener('mousedown', () => { mod.removeAllSpawnPoints() })

@@ -33,6 +33,10 @@
                 <input type="checkbox" id="toggleCollision" name="toggleCollision" checked/>
             </div>
             <div class="standard-menu-item">
+                <label for="toggleWorms">Worms: </label>
+                <input type="checkbox" id="worms" name="toggleWorms" />
+            </div>
+            <div class="standard-menu-item">
                 <p>Active Spawn Points: <span id="clearSpawnPoints" class="clear-points scary-red">Clear</span></p>
                 <div id="spawnPoints" class="spawn-points"></div>
             </div>
