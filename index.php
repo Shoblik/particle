@@ -22,15 +22,19 @@
             </div>
             <div class="standard-menu-item">
                 <label for="spawnFreqSlider">Spawn Frequency = <span id="spawnFreqValDisplay"></span> per frame</label>
-                <input type="range" id="spawnFreqSlider" name="spawnFreqSlider" min="0" max="30" value="1">
+                <input type="range" id="spawnFreqSlider" name="spawnFreqSlider" min="1" max="10" value="4">
             </div>
             <div class="standard-menu-item">
                 <label for="circleSpeedSlider">Circle Speed = <span id="circleSpeedSliderValDisplay"></span></label>
                 <input type="range" id="circleSpeedSlider" name="circleSpeedSlider" min="1" max="100" value="2">
             </div>
             <div class="standard-menu-item">
-                <label for="toggleCollision">Collision Detection: </label>
-                <input type="checkbox" id="toggleCollision" name="toggleCollision" checked/>
+                <label for="collisionModes">Collision Detection: </label>
+                <select name="collisionModes" id="collisionModes">
+                    <option value="standard">Standard</option>
+                    <option value="advanced">Velocity and Angle Changes</option>
+                    <option value="none">None</option>
+                </select>
             </div>
             <div class="standard-menu-item">
                 <label for="toggleWorms">Worms: </label>

@@ -19,6 +19,10 @@ const quadTreeBounds = new Rectangle(0, 0, canvas.width, canvas.height);
 const quadTree = new QuadTree(quadTreeBounds, quadTreeCapacity);
 
 let collisionDetection = true;
+let collisionType = 0;
+
+let definedColors = ['white', 'magenta', 'hotpink'];
+let colorIndex= 0;
 
 // Array to store every rendered circle
 let circles = [];
@@ -30,7 +34,7 @@ const drawCircle = (circle) => {
     // make circles grow here if desired
     let circleRadiusChange = 0;
     ctx.arc(circle.x, circle.y, circle.radius += circleRadiusChange, 0, Math.PI * 2);
-    ctx.fillStyle = circle.color; // You can change the color here
+    ctx.fillStyle = circle.color;
     ctx.fill();
 };
 
@@ -106,11 +110,20 @@ const update = () => {
                         circleA.dx = ((circleA.radius - circleB.radius) * vx0 + 2 * circleB.radius * vx1) / (circleA.radius + circleB.radius);
                         circleB.dx = vxTotal + circleA.dx;
 
-                        // Rotate velocities back
-                        circleA.dy = vy0 * cosine + vx0 * sine;
-                        circleA.dx = vx0 * cosine - vy0 * sine;
-                        circleB.dy = vy1 * cosine + vx1 * sine;
-                        circleB.dx = vx1 * cosine - vy1 * sine;
+                        if (collisionType === 0) {
+                            // Rotate velocities back
+                            circleA.dy = vy0 * cosine + vx0 * sine;
+                            circleA.dx = vx0 * cosine - vy0 * sine;
+                            circleB.dy = vy1 * cosine + vx1 * sine;
+                            circleB.dx = vx1 * cosine - vy1 * sine;
+                        } else {
+                            // New velocities after collision
+                            circleA.dx = ((circleA.radius - circleB.radius) * circleA.dx + 2 * circleB.radius * circleB.dx) / (circleA.radius + circleB.radius);
+                            circleB.dx = ((circleB.radius - circleA.radius) * circleB.dx + 2 * circleA.radius * circleA.dx) / (circleA.radius + circleB.radius);
+
+                            circleA.dy = ((circleA.radius - circleB.radius) * circleA.dy + 2 * circleB.radius * circleB.dy) / (circleA.radius + circleB.radius);
+                            circleB.dy = ((circleB.radius - circleA.radius) * circleB.dy + 2 * circleA.radius * circleA.dy) / (circleA.radius + circleB.radius);
+                        }
 
                         // Update positions to avoid overlapping
                         const overlap = circleRadius * 2 - distance + 1;
@@ -129,7 +142,7 @@ const update = () => {
 
     // Display FPS
     ctx.fillStyle = 'white';
-    ctx.font = '16px Arial';
+    ctx.font = '16px Helvetica';
     ctx.fillText(`FPS: ${fps}`, 45, 20);
 
     // CPU and GPU engage, DO IT AGAIN!
@@ -137,32 +150,49 @@ const update = () => {
 };
 
 const spawnNewCircles = (event = null, mouseX = null, mouseY = null, color = null) => {
-    // Create X new circle objects
-    for (let i = 0; i < circleCount; i++) {
-        const circle = {
-            x: mouseX,
-            y: mouseY,
-            dx: 0, // X direction (horizontal) of the drift
-            dy: 0, // Y direction (vertical) of the drift
-            color: color ?? generateRandomColor(),
-            radius: circleRadius
-        };
+    const circle = {
+        x: mouseX,
+        y: mouseY,
+        dx: 0, // X direction (horizontal) of the drift
+        dy: 0, // Y direction (vertical) of the drift
+        color: color ?? generateRandomColor(),
+        radius: circleRadius
+    };
 
-        // Set a random direction
-        const angle = Math.random() * Math.PI * 2;
-        circle.dx = Math.cos(angle) * circleSpeed; // Adjust speed as needed
-        circle.dy = Math.sin(angle) * circleSpeed; // Adjust speed as needed
+    // Set a random direction
+    const angle = Math.random() * Math.PI * 2;
+    circle.dx = Math.cos(angle) * circleSpeed; // Adjust speed as needed
+    circle.dy = Math.sin(angle) * circleSpeed; // Adjust speed as needed
 
-        // Add the circle to the array
-        circles.push(circle);
-    }
+    // Add the circle to the array
+    circles.push(circle);
 };
 
 let positionsToSpawn = [];
+let spawnInterval = document.getElementById('spawnFreqSlider').value; // Spawn a batch of circles every x frames
 const startFixedCircleSpawn = () => {
-    positionsToSpawn.forEach((coords) => spawnNewCircles(null, coords[0], coords[1], coords[2]))
-    spawnAnimation = requestAnimationFrame(startFixedCircleSpawn);
-}
+    let batchSize = 10; // Number of circles to spawn in each batch
+    let spawnCounter = 0;
+
+    const spawnBatch = () => {
+        for (let i = 0; i < batchSize; i++) {
+            const index = Math.floor(Math.random() * positionsToSpawn.length);
+            const coords = positionsToSpawn[index];
+            spawnNewCircles(null, coords[0], coords[1], coords[2]);
+        }
+    };
+
+    const spawnLoop = () => {
+        spawnCounter++;
+        if (spawnCounter >= spawnInterval) {
+            spawnBatch();
+            spawnCounter = 0;
+        }
+        spawnAnimation = requestAnimationFrame(spawnLoop);
+    };
+
+    spawnLoop();
+};
 
 const generateRandomColor = () => {
     const red = Math.floor(Math.random() * 256);
@@ -173,6 +203,12 @@ const generateRandomColor = () => {
     return `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
 };
 
+function getNextColor() {
+    let color = definedColors[colorIndex];
+    colorIndex = (colorIndex + 1) % definedColors.length; // Increment index and wrap around if necessary
+    return color;
+}
+
 canvas.addEventListener('contextmenu', (event) => {
     event.preventDefault();
 });
@@ -181,6 +217,8 @@ canvas.addEventListener('contextmenu', (event) => {
 document.addEventListener('mousedown', (event) => {
     // if left click
     if (event.button === 0) {
+        // let determinedColor = getNextColor();
+
         positionsToSpawn.push([event.clientX, event.clientY, generateRandomColor()]);
         menu.displaySpawnPoints();
         if (!spawnAnimation) requestAnimationFrame(startFixedCircleSpawn);
@@ -190,6 +228,7 @@ document.addEventListener('mousedown', (event) => {
     if (event.button === 1) {
         positionsToSpawn.pop();
         menu.displaySpawnPoints();
+        if (!positionsToSpawn.length) spawnAnimation = null;
     }
 });
 
@@ -203,7 +242,7 @@ const menu = {
 
     initMenuVals: () => {
         menu.updateMenuOnValChange('circleRadiusValDisplay', circleRadius);
-        menu.updateMenuOnValChange('spawnFreqValDisplay', circleCount);
+        menu.updateMenuOnValChange('spawnFreqValDisplay', spawnInterval);
         menu.updateMenuOnValChange('circleSpeedSliderValDisplay', circleSpeed);
     },
 
@@ -220,8 +259,8 @@ const menu = {
         })
 
         document.getElementById('spawnFreqSlider').addEventListener('input', (event) => {
-            circleCount = Number(event.target.value);
-            menu.updateMenuOnValChange('spawnFreqValDisplay', circleCount);
+            spawnInterval = Number(event.target.value);
+            menu.updateMenuOnValChange('spawnFreqValDisplay', spawnInterval);
         })
 
         document.getElementById('circleSpeedSlider').addEventListener('input', (event) => {
@@ -234,8 +273,18 @@ const menu = {
             menu.toggleMenu();
         });
 
-        document.getElementById('toggleCollision').addEventListener('change', (event) => {
-            collisionDetection = event.target.checked;
+        document.getElementById('collisionModes').addEventListener('change', (event) => {
+            let collisionMode = event.target.value
+
+            collisionDetection = true;
+            if (collisionMode === 'standard') {
+                collisionType = 0;
+            } else if (collisionMode === 'advanced') {
+                collisionType = 1;
+            } else {
+                // no collision
+                collisionDetection = false;
+            }
         })
 
         document.getElementById('worms').addEventListener('change', (event) => {
@@ -307,6 +356,7 @@ const mod = {
 
     removeAllSpawnPoints: () => {
         positionsToSpawn = [];
+        spawnAnimation = null;
         menu.clearSpawnPointsFromMenu();
     }
 }
